@@ -1,4 +1,4 @@
-package com.spring.moviecatelogservice.model;
+package com.spring.ratingservice.model;
 
 import java.util.List;
 
