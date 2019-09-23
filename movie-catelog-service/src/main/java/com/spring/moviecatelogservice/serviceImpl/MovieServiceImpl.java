@@ -1,6 +1,7 @@
 package com.spring.moviecatelogservice.serviceImpl;
 
 import com.netflix.hystrix.contrib.javanica.annotation.HystrixCommand;
+import com.netflix.hystrix.contrib.javanica.annotation.HystrixProperty;
 import com.spring.moviecatelogservice.model.Catelog;
 import com.spring.moviecatelogservice.model.Movie;
 import com.spring.moviecatelogservice.model.Rating;
@@ -16,7 +17,13 @@ public class MovieServiceImpl implements MovieService {
     private RestTemplate restTemplate;
 
     @Override
-    @HystrixCommand(fallbackMethod = "getFallbackMovieDetails")
+    @HystrixCommand(fallbackMethod = "getFallbackMovieDetails",
+            commandProperties = {
+                @HystrixProperty(name="execution.isolation.thread.timeoutInMilliseconds",value = "2000"),
+                @HystrixProperty(name="circuitBreaker.requestVolumeThreshold",value = "5"),
+                @HystrixProperty(name="circuitBreaker.errorThresholdPercentage",value = "50"),
+                @HystrixProperty(name="circuitBreaker.sleepWindowInMilliseconds",value = "5000")
+            })
     public Catelog getMovieDetails(Rating rating) {
         Movie movie =  restTemplate.getForObject("http://MOVIE-SERVICE/movies/"+rating.getMovieId(), Movie.class);
         return new Catelog(movie.getName(),movie.getDescription(),rating.getRating());
